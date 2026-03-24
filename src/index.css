@@ -1,0 +1,12 @@
+@import 'tailwindcss';
+
+/* Global base styles (Tailwind provides most of the UI styling) */
+body {
+  margin: 0;
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+* {
+  box-sizing: border-box;
+}
+

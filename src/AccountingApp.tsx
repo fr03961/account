@@ -193,7 +193,7 @@ export default function AccountingApp() {
         </section>
 
         <section className="mt-6 grid gap-4 lg:grid-cols-2">
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <h2 className="text-lg font-semibold">Add Sales</h2>
             <p className="mt-1 text-sm text-slate-600">Record each sales entry.</p>
 
@@ -246,38 +246,40 @@ export default function AccountingApp() {
               </button>
             </form>
 
-            <div className="mt-5">
+            <div className="mt-5 min-h-0 flex-1">
               <h3 className="text-sm font-semibold text-slate-800">Sales List</h3>
-              {state.sales.length === 0 ? (
-                <p className="mt-2 text-sm text-slate-600">No sales added yet.</p>
-              ) : (
-                <ul className="mt-3 divide-y divide-slate-200">
-                  {state.sales.map((s) => (
-                    <li key={s.id} className="flex items-start justify-between gap-3 py-2">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-slate-900">{s.description}</p>
-                        <p className="text-xs text-slate-600">{s.date}</p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-slate-900">{formatAmount(s.amount)}</span>
-                        <button
-                          type="button"
-                          onClick={() => void deleteSale(s.id)}
-                          className="rounded-md border border-rose-200 bg-white px-2 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
-                          aria-label="Delete sale"
-                          disabled={isBusy}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <div className="mt-3 max-h-[400px] overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3">
+                {state.sales.length === 0 ? (
+                  <p className="text-sm text-slate-600">No sales added yet.</p>
+                ) : (
+                  <ul className="divide-y divide-slate-200">
+                    {state.sales.map((s) => (
+                      <li key={s.id} className="flex items-start justify-between gap-3 py-2">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-slate-900">{s.description}</p>
+                          <p className="text-xs text-slate-600">{s.date}</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-slate-900">{formatAmount(s.amount)}</span>
+                          <button
+                            type="button"
+                            onClick={() => void deleteSale(s.id)}
+                            className="rounded-md border border-rose-200 bg-white px-2 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
+                            aria-label="Delete sale"
+                            disabled={isBusy}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           </div>
 
-          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
             <h2 className="text-lg font-semibold">Add Expenses & Purchases</h2>
             <p className="mt-1 text-sm text-slate-600">Record costs (materials, transport, etc.).</p>
 
@@ -342,36 +344,38 @@ export default function AccountingApp() {
               </button>
             </form>
 
-            <div className="mt-5">
+            <div className="mt-5 min-h-0 flex-1">
               <h3 className="text-sm font-semibold text-slate-800">Costs List</h3>
-              {state.costs.length === 0 ? (
-                <p className="mt-2 text-sm text-slate-600">No expenses/purchases added yet.</p>
-              ) : (
-                <ul className="mt-3 divide-y divide-slate-200">
-                  {state.costs.map((c) => (
-                    <li key={c.id} className="flex items-start justify-between gap-3 py-2">
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-slate-900">{c.description}</p>
-                        <p className="text-xs text-slate-600">
-                          {c.date} · <span className="font-medium">{c.kind}</span>
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-semibold text-slate-900">{formatAmount(c.amount)}</span>
-                        <button
-                          type="button"
-                          onClick={() => void deleteCost(c.id)}
-                          className="rounded-md border border-rose-200 bg-white px-2 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
-                          aria-label="Delete cost"
-                          disabled={isBusy}
-                        >
-                          Delete
-                        </button>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
-              )}
+              <div className="mt-3 max-h-[400px] overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3">
+                {state.costs.length === 0 ? (
+                  <p className="text-sm text-slate-600">No expenses/purchases added yet.</p>
+                ) : (
+                  <ul className="divide-y divide-slate-200">
+                    {state.costs.map((c) => (
+                      <li key={c.id} className="flex items-start justify-between gap-3 py-2">
+                        <div className="min-w-0">
+                          <p className="truncate text-sm font-medium text-slate-900">{c.description}</p>
+                          <p className="text-xs text-slate-600">
+                            {c.date} · <span className="font-medium">{c.kind}</span>
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-slate-900">{formatAmount(c.amount)}</span>
+                          <button
+                            type="button"
+                            onClick={() => void deleteCost(c.id)}
+                            className="rounded-md border border-rose-200 bg-white px-2 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50"
+                            aria-label="Delete cost"
+                            disabled={isBusy}
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
             </div>
           </div>
         </section>

@@ -1,7 +1,14 @@
-import { useState, type FormEvent } from 'react'
+import { useMemo, useState, type FormEvent } from 'react'
 import { useAccountingStore } from './store/accountingStore'
 import type { CostKind } from './types'
 import { supabase } from './supabaseClient'
+
+const DESCRIPTION_LETTER_ERROR = 'Description must contain at least one letter'
+
+/** At least one English or Arabic letter (rejects numeric-only strings like "41"). */
+function descriptionHasLetter(value: string): boolean {
+  return /[a-zA-Z\u0600-\u06FF]/.test(value)
+}
 
 function formatAmount(value: number): string {
   return new Intl.NumberFormat(undefined, {
@@ -42,6 +49,21 @@ export default function AccountingApp() {
   const [costAmount, setCostAmount] = useState('')
   const [costError, setCostError] = useState<string | null>(null)
 
+  const [salesSearch, setSalesSearch] = useState('')
+  const [costsSearch, setCostsSearch] = useState('')
+
+  const filteredSales = useMemo(() => {
+    const q = salesSearch.trim().toLowerCase()
+    if (!q) return state.sales
+    return state.sales.filter((s) => s.description.toLowerCase().includes(q))
+  }, [state.sales, salesSearch])
+
+  const filteredCosts = useMemo(() => {
+    const q = costsSearch.trim().toLowerCase()
+    if (!q) return state.costs
+    return state.costs.filter((c) => c.description.toLowerCase().includes(q))
+  }, [state.costs, costsSearch])
+
   const profitTone = netProfit >= 0 ? 'text-emerald-600' : 'text-rose-600'
   const profitBg = netProfit >= 0 ? 'bg-emerald-50' : 'bg-rose-50'
   const profitBorder = netProfit >= 0 ? 'border-emerald-200' : 'border-rose-200'
@@ -57,6 +79,7 @@ export default function AccountingApp() {
 
     if (!saleDate) return setSaleError('Please choose a date.')
     if (!description) return setSaleError('Please enter a description.')
+    if (!descriptionHasLetter(description)) return setSaleError(DESCRIPTION_LETTER_ERROR)
     if (!Number.isFinite(amount) || amount <= 0) return setSaleError('Amount must be a positive number.')
 
     void addSale({ date: saleDate, description, amount })
@@ -74,6 +97,7 @@ export default function AccountingApp() {
 
     if (!costDate) return setCostError('Please choose a date.')
     if (!description) return setCostError('Please enter a description.')
+    if (!descriptionHasLetter(description)) return setCostError(DESCRIPTION_LETTER_ERROR)
     if (!Number.isFinite(amount) || amount <= 0) return setCostError('Amount must be a positive number.')
 
     void addCost({ date: costDate, description, amount, kind: costKind })
@@ -248,12 +272,26 @@ export default function AccountingApp() {
 
             <div className="mt-5 min-h-0 flex-1">
               <h3 className="text-sm font-semibold text-slate-800">Sales List</h3>
+              <label className="mt-2 block">
+                <span className="sr-only">Search sales by description</span>
+                <input
+                  type="search"
+                  value={salesSearch}
+                  onChange={(e) => setSalesSearch(e.target.value)}
+                  placeholder="Search by description..."
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500"
+                  disabled={isBusy}
+                  autoComplete="off"
+                />
+              </label>
               <div className="mt-3 max-h-[400px] overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3">
                 {state.sales.length === 0 ? (
                   <p className="text-sm text-slate-600">No sales added yet.</p>
+                ) : filteredSales.length === 0 ? (
+                  <p className="text-sm text-slate-600">No sales match your search.</p>
                 ) : (
                   <ul className="divide-y divide-slate-200">
-                    {state.sales.map((s) => (
+                    {filteredSales.map((s) => (
                       <li key={s.id} className="flex items-start justify-between gap-3 py-2">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium text-slate-900">{s.description}</p>
@@ -346,12 +384,26 @@ export default function AccountingApp() {
 
             <div className="mt-5 min-h-0 flex-1">
               <h3 className="text-sm font-semibold text-slate-800">Costs List</h3>
+              <label className="mt-2 block">
+                <span className="sr-only">Search costs by description</span>
+                <input
+                  type="search"
+                  value={costsSearch}
+                  onChange={(e) => setCostsSearch(e.target.value)}
+                  placeholder="Search by description..."
+                  className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-indigo-500"
+                  disabled={isBusy}
+                  autoComplete="off"
+                />
+              </label>
               <div className="mt-3 max-h-[400px] overflow-y-auto rounded-lg border border-slate-200 bg-slate-50 p-3">
                 {state.costs.length === 0 ? (
                   <p className="text-sm text-slate-600">No expenses/purchases added yet.</p>
+                ) : filteredCosts.length === 0 ? (
+                  <p className="text-sm text-slate-600">No costs match your search.</p>
                 ) : (
                   <ul className="divide-y divide-slate-200">
-                    {state.costs.map((c) => (
+                    {filteredCosts.map((c) => (
                       <li key={c.id} className="flex items-start justify-between gap-3 py-2">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium text-slate-900">{c.description}</p>
